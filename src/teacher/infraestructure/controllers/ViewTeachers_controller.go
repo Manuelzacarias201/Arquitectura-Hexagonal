@@ -21,5 +21,5 @@ func (tv *ViewTeachersController) Run(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"Teachers": teachers})
+	c.JSON(http.StatusOK, teachers)
 }

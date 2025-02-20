@@ -19,10 +19,10 @@ func NewMySQL() *MySQL {
 	return &MySQL{conn: conn}
 }
 
-func (mysql *MySQL) Save(name, description string) error {
-	query := "INSERT INTO teachers (name, description) VALUES (?, ?)"
+func (mysql *MySQL) Save(name, asignature string) error {
+	query := "INSERT INTO teachers (name, asignature) VALUES (?, ?)"
 
-	result, err := mysql.conn.ExecutePreparedQuery(query, name, description)
+	result, err := mysql.conn.ExecutePreparedQuery(query, name, asignature)
 	if err != nil {
 		return fmt.Errorf("error al ejecutar la consulta: %w", err)
 	}
@@ -86,4 +86,21 @@ func (mysql *MySQL) ViewOne(id int) (*entities.Teacher, error) {
 		return nil, fmt.Errorf("error iterando sobre las filas: %w", err)
 	}
 	return &teacher, nil
+}
+
+func (mysql *MySQL) Edit(id int, name, asignature string) error {
+	query := "UPDATE teachers SET name = ?, asignature = ? WHERE id = ?"
+
+	result, err := mysql.conn.ExecutePreparedQuery(query, name, asignature, id)
+	if err != nil {
+		return fmt.Errorf("error al ejecutar la consulta: %w", err)
+	}
+
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return fmt.Errorf("no se encontró ningún teacher con el ID %d", id)
+	}
+
+	log.Printf("[MySQL] - Teacher actualizado con ID: %d", id)
+	return nil
 }

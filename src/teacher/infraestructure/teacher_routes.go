@@ -12,6 +12,7 @@ func SetupTeacherRoutes(
 	deleteTeacherController *controllers.DeleteTeacherController,
 	viewTeachersController *controllers.ViewTeachersController,
 	viewTeacherController *controllers.ViewTeacherController,
+	editTeacherController *controllers.EditTeacherController,
 ) {
 	teacherGroup := router.Group("/teachers")
 	{
@@ -19,5 +20,6 @@ func SetupTeacherRoutes(
 		teacherGroup.GET("", viewTeachersController.Run)
 		teacherGroup.GET("/:id", viewTeacherController.Run)
 		teacherGroup.DELETE("/:id", deleteTeacherController.Run)
+		teacherGroup.PUT("/:id", editTeacherController.Run)
 	}
 }

@@ -88,3 +88,20 @@ func (mysql *MySQL) ViewOne(id int) (*entities.Alumn, error) {
 
 	return &alumn, nil
 }
+
+func (mysql *MySQL) Edit(id int, name, matricula string) error {
+	query := "UPDATE alumns SET name = ?, matricula = ? WHERE id = ?"
+
+	result, err := mysql.conn.ExecutePreparedQuery(query, name, matricula, id)
+	if err != nil {
+		return fmt.Errorf("error al ejecutar la consulta: %w", err)
+	}
+
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return fmt.Errorf("no se encontró ningún alumno con el ID %d", id)
+	}
+
+	log.Printf("[MySQL] - Alumno actualizado con ID: %d", id)
+	return nil
+}

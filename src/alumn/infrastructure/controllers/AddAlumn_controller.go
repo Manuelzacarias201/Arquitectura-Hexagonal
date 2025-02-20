@@ -7,11 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AddAlumnController struct {
+type AddAlumnController struct { //estructura para guardar alumn
 	alumnSaver *application.SaveAlumn
 }
 
-func NewSaveAlumnController(useCase *application.SaveAlumn) *AddAlumnController {
+func NewSaveAlumnController(useCase *application.SaveAlumn) *AddAlumnController { //constructor para la bd
 	return &AddAlumnController{alumnSaver: useCase}
 }
 

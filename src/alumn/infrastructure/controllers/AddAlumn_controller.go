@@ -8,14 +8,14 @@ import (
 )
 
 type AddAlumnController struct { //estructura para guardar alumn
-	alumnSaver *application.SaveAlumn
+	alumnSaver *application.SaveAlumn //puntero a la estructura de guardar alumn
 }
 
 func NewSaveAlumnController(useCase *application.SaveAlumn) *AddAlumnController { //constructor para la bd
 	return &AddAlumnController{alumnSaver: useCase}
 }
 
-func (as *AddAlumnController) Run(c *gin.Context) {
+func (as *AddAlumnController) Run(c *gin.Context) { //maneja el post
 	//definimos el cuerpo de la petición
 	var body struct {
 		Name      string `json:"name"`

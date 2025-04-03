@@ -1,13 +1,13 @@
-package application // Parte de la logica de el negocio y la app
+package application
 
 import "api/src/alumn/domain"
 
-type DeleteAlumn struct {
-	db domain.IAlumn //Interfaz para la bd
+type DeleteAlumn struct { //estructura para eliminar un alumno
+	db domain.IAlumn
 }
 
-func NewDeleteAlumn(db domain.IAlumn) *DeleteAlumn {
-	return &DeleteAlumn{db: db} //puntero a DeleteAlumn
+func NewDeleteAlumn(db domain.IAlumn) *DeleteAlumn { //puntero de delete alumn
+	return &DeleteAlumn{db: db}
 }
 
 func (da *DeleteAlumn) Execute(id int) error { //funcion para eliminar un alumno con id

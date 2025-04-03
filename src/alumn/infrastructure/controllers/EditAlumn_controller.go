@@ -11,10 +11,10 @@ import (
 )
 
 type EditAlumnController struct {
-	alumnEditor *application.EditAccessory
+	alumnEditor *application.EditAlumn
 }
 
-func NewEditAlumnController(editor *application.EditAccessory) *EditAlumnController {
+func NewEditAlumnController(editor *application.EditAlumn) *EditAlumnController {
 	return &EditAlumnController{
 		alumnEditor: editor,
 	}

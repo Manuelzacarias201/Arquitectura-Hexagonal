@@ -16,7 +16,9 @@ type Conn_MySQL struct {
 }
 
 func GetDBPool() *Conn_MySQL {
-	error := ""
+	errorMsg := ""
+
+	// Cargar las variables de entorno
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error al cargar el archivo .env: %v", err)
@@ -26,49 +28,55 @@ func GetDBPool() *Conn_MySQL {
 	dbHost := os.Getenv("DB_HOST")
 	dbUser := os.Getenv("DB_USER")
 	dbPass := os.Getenv("DB_PASS")
-	dbSchema := os.Getenv("DB_SCHEMA")
+	dbName := os.Getenv("DB_NAME") // Cambio de DB_SCHEMA a DB_NAME
+	dbPort := os.Getenv("DB_PORT")
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", dbUser, dbPass, dbHost, dbSchema)
+	// Construcción del DSN (Data Source Name)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true&charset=utf8mb4",
+		dbUser, dbPass, dbHost, dbPort, dbName)
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		error = fmt.Sprintf("error al abrir la base de datos: %v", err)
-		return &Conn_MySQL{DB: nil, Err: error}
+		errorMsg = fmt.Sprintf("Error al abrir la base de datos: %v", err)
+		return &Conn_MySQL{DB: nil, Err: errorMsg}
 	}
 
 	// Configuración del pool de conexiones
 	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)
 
 	// Probar la conexión
 	if err := db.Ping(); err != nil {
 		db.Close()
-		error = fmt.Sprintf("error al verificar la conexión a la base de datos: %v", err)
-		return &Conn_MySQL{DB: nil, Err: error}
+		errorMsg = fmt.Sprintf("Error al verificar la conexión a la base de datos: %v", err)
+		return &Conn_MySQL{DB: nil, Err: errorMsg}
 	}
 
-	return &Conn_MySQL{DB: db, Err: error}
+	fmt.Println("✅ Conexión a MySQL establecida correctamente")
+
+	return &Conn_MySQL{DB: db, Err: errorMsg}
 }
 
 func (conn *Conn_MySQL) ExecutePreparedQuery(query string, values ...interface{}) (sql.Result, error) {
 	stmt, err := conn.DB.Prepare(query)
 	if err != nil {
-		return nil, fmt.Errorf("error al preparar la consulta: %w", err)
+		return nil, fmt.Errorf("Error al preparar la consulta: %w", err)
 	}
 	defer stmt.Close()
 
 	result, err := stmt.Exec(values...)
 	if err != nil {
-		return nil, fmt.Errorf("error al ejecutar la consulta preparada: %w", err)
+		return nil, fmt.Errorf("Error al ejecutar la consulta preparada: %w", err)
 	}
 
 	return result, nil
 }
 
-func (conn *Conn_MySQL) FetchRows(query string, values ...interface{}) *sql.Rows {
+func (conn *Conn_MySQL) FetchRows(query string, values ...interface{}) (*sql.Rows, error) {
 	rows, err := conn.DB.Query(query, values...)
 	if err != nil {
-		fmt.Printf("error al ejecutar la consulta SELECT: %w", err)
+		return nil, fmt.Errorf("Error al ejecutar la consulta SELECT: %w", err)
 	}
 
-	return rows
+	return rows, nil
 }

@@ -1,0 +1,29 @@
+# Archivos de entorno
+.env
+
+# Binarios
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Archivos de prueba
+*.test
+
+# Archivos de salida
+*.out
+
+# Directorio de dependencias
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

@@ -3,6 +3,7 @@ package src
 import (
 	infrastructureAlumns "api/src/alumn/infrastructure"
 	infrastructureTeachers "api/src/teacher/infraestructure"
+	infrastructureUsers "api/src/user/infrastructure"
 
 	"time"
 
@@ -27,8 +28,10 @@ func Init() {
 	// cargamos las dependencias de cada modulo
 	dbT := infrastructureTeachers.NewMySQL()
 	dbA := infrastructureAlumns.NewMySQL()
+	dbU := infrastructureUsers.NewMySQL()
 
 	// inicializamos los modulos
+	infrastructureUsers.InitUsers(dbU, router)
 	infrastructureTeachers.InitTeachers(dbT, router)
 	infrastructureAlumns.InitAlumns(dbA, router)
 	// corremos el servidor

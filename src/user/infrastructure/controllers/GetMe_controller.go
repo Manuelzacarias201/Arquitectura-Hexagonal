@@ -19,19 +19,19 @@ func NewGetMeController(getMe *application.GetMe) *GetMeController {
 func (gm *GetMeController) Run(c *gin.Context) {
 	claimsVal, exists := c.Get(string(core.ClaimsContextKey))
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "no se encontró la sesión"})
+		RespondError(c, http.StatusUnauthorized, "Sesión no encontrada. Inicia sesión de nuevo.", "MISSING_SESSION")
 		return
 	}
 
 	claims, ok := claimsVal.(*core.Claims)
 	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error interno"})
+		RespondError(c, http.StatusInternalServerError, "Ha ocurrido un error. Inténtalo más tarde.", CodeInternalError)
 		return
 	}
 
 	user, err := gm.getMe.Execute(claims.UserID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		RespondError(c, http.StatusNotFound, "Usuario no encontrado.", "USER_NOT_FOUND")
 		return
 	}
 

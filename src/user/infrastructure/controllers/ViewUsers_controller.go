@@ -18,7 +18,7 @@ func NewViewUsersController(viewUsers *application.ViewUsers) *ViewUsersControll
 func (vu *ViewUsersController) Run(c *gin.Context) {
 	users, err := vu.viewUsers.Execute()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		RespondError(c, http.StatusInternalServerError, "No se pudieron cargar los usuarios. Inténtalo más tarde.", CodeInternalError)
 		return
 	}
 

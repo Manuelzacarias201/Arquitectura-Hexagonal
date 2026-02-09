@@ -19,16 +19,19 @@ func NewMySQL() *MySQL {
 	return &MySQL{conn: conn}
 }
 
-func (mysql *MySQL) Save(email, hashedPassword, name string) error {
+func (mysql *MySQL) Save(email, hashedPassword, name string) (int, error) {
 	query := "INSERT INTO users (email, password, name) VALUES (?, ?, ?)"
 	result, err := mysql.conn.ExecutePreparedQuery(query, email, hashedPassword, name)
 	if err != nil {
-		return fmt.Errorf("error al ejecutar la consulta INSERT: %w", err)
+		return 0, fmt.Errorf("error al ejecutar la consulta INSERT: %w", err)
 	}
 
-	rowsAffected, _ := result.RowsAffected()
-	log.Printf("[MySQL] - Usuario insertado: %d filas afectadas", rowsAffected)
-	return nil
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("error al obtener ID del usuario: %w", err)
+	}
+	log.Printf("[MySQL] - Usuario insertado con ID: %d", id)
+	return int(id), nil
 }
 
 func (mysql *MySQL) FindByEmail(email string) (*entities.User, error) {

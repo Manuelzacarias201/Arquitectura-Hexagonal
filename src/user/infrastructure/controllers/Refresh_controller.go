@@ -8,20 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type LoginController struct {
-	login *application.Login
+type RefreshController struct {
+	refresh *application.Refresh
 }
 
-func NewLoginController(login *application.Login) *LoginController {
-	return &LoginController{
-		login: login,
-	}
+func NewRefreshController(refresh *application.Refresh) *RefreshController {
+	return &RefreshController{refresh: refresh}
 }
 
-func (lc *LoginController) Run(c *gin.Context) {
+func (rc *RefreshController) Run(c *gin.Context) {
 	var body struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		RefreshToken string `json:"refresh_token"`
 	}
 
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -29,7 +26,7 @@ func (lc *LoginController) Run(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, userResponse, err := lc.login.Execute(body.Email, body.Password)
+	accessToken, refreshToken, userResponse, err := rc.refresh.Execute(body.RefreshToken)
 	if err != nil {
 		var appErr *application.AppError
 		if errors.As(err, &appErr) {
@@ -41,7 +38,7 @@ func (lc *LoginController) Run(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":       "Login exitoso",
+		"message":       "Token renovado",
 		"token":         accessToken,
 		"refresh_token": refreshToken,
 		"user":          userResponse.User,

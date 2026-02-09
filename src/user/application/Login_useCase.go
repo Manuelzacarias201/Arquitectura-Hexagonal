@@ -3,7 +3,6 @@ package application
 import (
 	"api/src/core"
 	"api/src/user/domain"
-	"errors"
 	"fmt"
 )
 
@@ -21,36 +20,38 @@ func NewLogin(db domain.IUser, bcrypt *core.BcryptRepository, jwt *core.JWTRepos
 	}
 }
 
-func (l *Login) Execute(email, password string) (string, *domain.LoginResponse, error) {
-	// Validar que el email no esté vacío
+func (l *Login) Execute(email, password string) (string, string, *domain.LoginResponse, error) {
+	email = NormalizeEmail(email)
+
 	if email == "" {
-		return "", nil, errors.New("el email es requerido")
+		return "", "", nil, &AppError{Code: CodeEmailRequired, Message: "El correo es requerido"}
 	}
-
-	// Validar que la contraseña no esté vacía
+	if !IsValidEmailFormat(email) {
+		return "", "", nil, &AppError{Code: CodeInvalidEmail, Message: "El formato del correo no es válido. Ejemplo: usuario@correo.com"}
+	}
 	if password == "" {
-		return "", nil, errors.New("la contraseña es requerida")
+		return "", "", nil, &AppError{Code: CodePasswordRequired, Message: "La contraseña es requerida"}
 	}
 
-	// Buscar el usuario por email
 	user, err := l.db.FindByEmail(email)
 	if err != nil || user == nil {
-		return "", nil, errors.New("credenciales inválidas")
+		return "", "", nil, &AppError{Code: CodeEmailNotFound, Message: "El correo no está registrado"}
 	}
 
-	// Verificar la contraseña
-	err = l.bcrypt.ComparePassword(user.Password, password)
+	if err := l.bcrypt.ComparePassword(user.Password, password); err != nil {
+		return "", "", nil, &AppError{Code: CodeWrongPassword, Message: "Contraseña incorrecta"}
+	}
+
+	accessToken, err := l.jwt.GenerateToken(user.ID, user.Email)
 	if err != nil {
-		return "", nil, errors.New("credenciales inválidas")
+		return "", "", nil, fmt.Errorf("error al generar el token: %w", err)
 	}
 
-	// Generar token JWT
-	token, err := l.jwt.GenerateToken(user.ID, user.Email)
+	refreshToken, err := l.jwt.GenerateRefreshToken(user.ID, user.Email)
 	if err != nil {
-		return "", nil, fmt.Errorf("error al generar el token: %v", err)
+		return "", "", nil, fmt.Errorf("error al generar el refresh token: %w", err)
 	}
 
-	// Retornar token y datos del usuario (sin contraseña)
 	response := &domain.LoginResponse{
 		User: domain.UserResponse{
 			ID:    user.ID,
@@ -59,5 +60,5 @@ func (l *Login) Execute(email, password string) (string, *domain.LoginResponse, 
 		},
 	}
 
-	return token, response, nil
+	return accessToken, refreshToken, response, nil
 }

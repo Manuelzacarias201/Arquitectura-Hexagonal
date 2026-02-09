@@ -3,7 +3,6 @@ package application
 import (
 	"api/src/core"
 	"api/src/user/domain"
-	"errors"
 	"fmt"
 )
 
@@ -19,39 +18,56 @@ func NewRegister(db domain.IUser, bcrypt *core.BcryptRepository) *Register {
 	}
 }
 
-func (r *Register) Execute(email, password, name string) error {
-	// Validar que el email no esté vacío
+const passwordExample = "MiSegura123"
+
+func (r *Register) Execute(email, password, name string) (*domain.UserResponse, error) {
+	email = NormalizeEmail(email)
+
 	if email == "" {
-		return errors.New("el email es requerido")
+		return nil, &AppError{Code: CodeEmailRequired, Message: "El correo es requerido"}
 	}
-
-	// Validar que la contraseña no esté vacía
+	if !IsValidEmailFormat(email) {
+		return nil, &AppError{Code: CodeInvalidEmail, Message: "El formato del correo no es válido. Ejemplo: usuario@correo.com"}
+	}
 	if password == "" {
-		return errors.New("la contraseña es requerida")
+		return nil, &AppError{
+			Code:    CodePasswordRequired,
+			Message: "La contraseña es obligatoria. Debe tener al menos 8 caracteres, una letra y un número. Ejemplo: " + passwordExample,
+		}
 	}
-
-	// Validar que el nombre no esté vacío
 	if name == "" {
-		return errors.New("el nombre es requerido")
+		return nil, &AppError{Code: CodeNameRequired, Message: "El nombre es requerido"}
+	}
+	if !ValidatePasswordStrength(password) {
+		return nil, &AppError{
+			Code:    CodePasswordTooWeak,
+			Message: "La contraseña debe tener al menos 8 caracteres, una letra y un número. Ejemplo: " + passwordExample,
+		}
 	}
 
-	// Validar longitud mínima de contraseña
-	if len(password) < 6 {
-		return errors.New("la contraseña debe tener al menos 6 caracteres")
-	}
-
-	// Verificar si el usuario ya existe
 	existingUser, err := r.db.FindByEmail(email)
 	if err == nil && existingUser != nil {
-		return errors.New("el email ya está registrado")
+		return nil, &AppError{Code: CodeEmailTaken, Message: "El correo ya está registrado"}
 	}
 
-	// Encriptar la contraseña
 	hashedPassword, err := r.bcrypt.HashPassword(password)
 	if err != nil {
-		return fmt.Errorf("error al encriptar la contraseña: %v", err)
+		return nil, fmt.Errorf("error al encriptar la contraseña: %w", err)
 	}
 
-	// Guardar el usuario
-	return r.db.Save(email, hashedPassword, name)
+	id, err := r.db.Save(email, hashedPassword, name)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.db.FindByID(id)
+	if err != nil || user == nil {
+		return &domain.UserResponse{ID: id, Email: email, Name: name}, nil
+	}
+
+	return &domain.UserResponse{
+		ID:    user.ID,
+		Email: user.Email,
+		Name:  user.Name,
+	}, nil
 }

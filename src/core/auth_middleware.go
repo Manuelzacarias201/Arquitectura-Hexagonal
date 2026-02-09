@@ -20,14 +20,14 @@ func AuthMiddleware(jwtRepo *JWTRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "falta el header Authorization"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Sesión no válida. Inicia sesión de nuevo.", "code": "MISSING_AUTH"})
 			c.Abort()
 			return
 		}
 
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "formato de Authorization inválido. Usa: Bearer <token>"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Formato de autorización incorrecto.", "code": "INVALID_AUTH_FORMAT"})
 			c.Abort()
 			return
 		}
@@ -35,7 +35,7 @@ func AuthMiddleware(jwtRepo *JWTRepository) gin.HandlerFunc {
 		tokenString := parts[1]
 		claims, err := jwtRepo.ValidateToken(tokenString)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "token inválido o expirado"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Sesión expirada o inválida. Inicia sesión de nuevo.", "code": "INVALID_OR_EXPIRED_TOKEN"})
 			c.Abort()
 			return
 		}

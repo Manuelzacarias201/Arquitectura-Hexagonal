@@ -3,7 +3,7 @@ package domain
 import "api/src/user/domain/entities"
 
 type IUser interface {
-	Save(email, hashedPassword, name string) error
+	Save(email, hashedPassword, name string) (int, error)
 	FindByEmail(email string) (*entities.User, error)
 	FindByID(id int) (*entities.User, error)
 	ViewAll() ([]entities.User, error)

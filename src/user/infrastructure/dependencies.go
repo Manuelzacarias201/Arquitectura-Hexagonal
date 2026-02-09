@@ -23,15 +23,17 @@ func InitUsers(db *MySQL, router *gin.Engine) {
 	// Instanciar casos de uso (Use Cases)
 	registerUseCase := application.NewRegister(db, bcryptRepo)
 	loginUseCase := application.NewLogin(db, bcryptRepo, jwtRepo)
+	refreshUseCase := application.NewRefresh(db, jwtRepo)
 	getMeUseCase := application.NewGetMe(db)
 	viewUsersUseCase := application.NewViewUsers(db)
 
 	// Instanciar controladores (Handlers)
 	registerController := controllers.NewRegisterController(registerUseCase)
 	loginController := controllers.NewLoginController(loginUseCase)
+	refreshController := controllers.NewRefreshController(refreshUseCase)
 	getMeController := controllers.NewGetMeController(getMeUseCase)
 	viewUsersController := controllers.NewViewUsersController(viewUsersUseCase)
 
 	// Configurar rutas
-	SetupUserRoutes(router, authMiddleware, registerController, loginController, getMeController, viewUsersController)
+	SetupUserRoutes(router, authMiddleware, registerController, loginController, refreshController, getMeController, viewUsersController)
 }

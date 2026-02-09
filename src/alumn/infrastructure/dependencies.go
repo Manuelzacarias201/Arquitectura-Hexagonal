@@ -3,7 +3,6 @@ package infrastructure
 import (
 	"api/src/alumn/application"
 	"api/src/alumn/infrastructure/controllers"
-	"api/src/core" // Agregamos bcrypt
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,11 +10,8 @@ import (
 func InitAlumns(db *MySQL, router *gin.Engine) {
 	println("CARGANDO DEPENDENCIAS DE ALUMNOS")
 
-	// Instanciar el repositorio de bcrypt
-	bcryptRepo := core.NewBcryptRepository()
-
 	// Instanciar casos de uso (Use Cases)
-	alumnSaver := application.NewSaveAlumn(db, bcryptRepo) // Se añade bcryptRepo
+	alumnSaver := application.NewSaveAlumn(db)
 	alumnRemover := application.NewDeleteAlumn(db)
 	alumnViewer := application.NewViewAlumns(db)
 	alumnView := application.NewViewAlumn(db)

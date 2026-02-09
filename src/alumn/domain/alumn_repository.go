@@ -3,9 +3,9 @@ package domain
 import "api/src/alumn/domain/entities"
 
 type IAlumn interface {
-	Save(name, hashedMatricula string) error // Ahora recibe la matrícula encriptada
+	Save(name, matricula string) error
 	ViewOne(id int) (*entities.Alumn, error)
 	ViewAll() ([]entities.Alumn, error)
 	Delete(id int) error
-	Edit(id int, name, hashedMatricula string) error
+	Edit(id int, name, matricula string) error
 }

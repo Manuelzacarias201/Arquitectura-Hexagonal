@@ -33,13 +33,34 @@ func NewJWTRepository() (*JWTRepository, error) {
 	}, nil
 }
 
-// GenerateToken genera un token JWT para un usuario
+// GenerateToken genera un token JWT de acceso para un usuario (24h)
 func (jr *JWTRepository) GenerateToken(userID int, email string) (string, error) {
 	claims := Claims{
 		UserID: userID,
 		Email:  email,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // Token válido por 24 horas
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			Issuer:    "api",
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jr.secretKey)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
+// GenerateRefreshToken genera un token de refresco (7 días)
+func (jr *JWTRepository) GenerateRefreshToken(userID int, email string) (string, error) {
+	claims := Claims{
+		UserID: userID,
+		Email:  email,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(7 * 24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			Issuer:    "api",
 		},

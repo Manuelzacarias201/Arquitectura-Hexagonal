@@ -21,4 +21,6 @@ const (
 	CodeEmailNotFound    = "EMAIL_NOT_FOUND"
 	CodeWrongPassword    = "WRONG_PASSWORD"
 	CodeInvalidRefresh   = "INVALID_REFRESH_TOKEN"
+	CodePushTokenInvalid = "INVALID_PUSH_TOKEN"
+	CodePushUnavailable  = "PUSH_UNAVAILABLE"
 )

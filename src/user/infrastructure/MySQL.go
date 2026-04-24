@@ -108,3 +108,38 @@ func (mysql *MySQL) ViewAll() ([]entities.User, error) {
 
 	return users, nil
 }
+
+func (mysql *MySQL) SaveDeviceToken(userID int, token string) error {
+	query := `
+		INSERT INTO user_device_tokens (user_id, fcm_token)
+		VALUES (?, ?)
+		ON DUPLICATE KEY UPDATE fcm_token = VALUES(fcm_token), updated_at = CURRENT_TIMESTAMP
+	`
+	_, err := mysql.conn.ExecutePreparedQuery(query, userID, token)
+	if err != nil {
+		return fmt.Errorf("error guardando token FCM: %w", err)
+	}
+	return nil
+}
+
+func (mysql *MySQL) GetDeviceToken(userID int) (string, error) {
+	query := "SELECT fcm_token FROM user_device_tokens WHERE user_id = ?"
+	rows, err := mysql.conn.FetchRows(query, userID)
+	if err != nil {
+		return "", fmt.Errorf("error al consultar token FCM: %w", err)
+	}
+	defer func() {
+		if rows != nil {
+			rows.Close()
+		}
+	}()
+
+	var token string
+	if rows.Next() {
+		if err := rows.Scan(&token); err != nil {
+			return "", fmt.Errorf("error leyendo token FCM: %w", err)
+		}
+		return token, nil
+	}
+	return "", fmt.Errorf("token FCM no encontrado para el usuario %d", userID)
+}

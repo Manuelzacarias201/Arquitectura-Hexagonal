@@ -7,6 +7,8 @@ type IUser interface {
 	FindByEmail(email string) (*entities.User, error)
 	FindByID(id int) (*entities.User, error)
 	ViewAll() ([]entities.User, error)
+	SaveDeviceToken(userID int, token string) error
+	GetDeviceToken(userID int) (string, error)
 }
 
 // UserResponse representa los datos del usuario sin la contraseña

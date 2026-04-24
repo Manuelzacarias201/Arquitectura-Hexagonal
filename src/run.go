@@ -24,6 +24,7 @@ func Init() {
 	router := gin.Default()
 
 	router.Use(cors.New(config))
+	router.Static("/uploads", "./uploads")
 
 	// cargamos las dependencias de cada modulo
 	dbT := infrastructureTeachers.NewMySQL()

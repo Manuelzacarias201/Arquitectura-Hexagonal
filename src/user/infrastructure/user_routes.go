@@ -15,6 +15,8 @@ func SetupUserRoutes(
 	registerController *controllers.RegisterController,
 	loginController *controllers.LoginController,
 	refreshController *controllers.RefreshController,
+	registerDeviceTokenController *controllers.RegisterDeviceTokenController,
+	sendPushController *controllers.SendPushNotificationController,
 	getMeController *controllers.GetMeController,
 	viewUsersController *controllers.ViewUsersController,
 ) {
@@ -26,6 +28,8 @@ func SetupUserRoutes(
 		authGroup.POST("/register", rateLimit, registerController.Run)
 		authGroup.POST("/login", rateLimit, loginController.Run)
 		authGroup.POST("/refresh", rateLimit, refreshController.Run)
+		authGroup.POST("/notifications/token", authMiddleware, registerDeviceTokenController.Run)
+		authGroup.POST("/notifications/send", authMiddleware, rateLimit, sendPushController.Run)
 		authGroup.GET("/users", viewUsersController.Run)
 		authGroup.GET("/me", authMiddleware, getMeController.Run)
 	}

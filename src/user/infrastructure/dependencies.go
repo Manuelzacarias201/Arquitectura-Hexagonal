@@ -15,6 +15,7 @@ func InitUsers(db *MySQL, router *gin.Engine) {
 	// Instanciar repositorios compartidos
 	bcryptRepo := core.NewBcryptRepository()
 	jwtRepo, err := core.NewJWTRepository()
+	fcmRepo := core.NewFCMRepository()
 	if err != nil {
 		log.Fatalf("Error al inicializar JWT: %v", err)
 	}
@@ -24,6 +25,8 @@ func InitUsers(db *MySQL, router *gin.Engine) {
 	registerUseCase := application.NewRegister(db, bcryptRepo)
 	loginUseCase := application.NewLogin(db, bcryptRepo, jwtRepo)
 	refreshUseCase := application.NewRefresh(db, jwtRepo)
+	registerDeviceTokenUseCase := application.NewRegisterDeviceToken(db)
+	sendPushUseCase := application.NewSendPushNotification(db, fcmRepo)
 	getMeUseCase := application.NewGetMe(db)
 	viewUsersUseCase := application.NewViewUsers(db)
 
@@ -31,9 +34,21 @@ func InitUsers(db *MySQL, router *gin.Engine) {
 	registerController := controllers.NewRegisterController(registerUseCase)
 	loginController := controllers.NewLoginController(loginUseCase)
 	refreshController := controllers.NewRefreshController(refreshUseCase)
+	registerDeviceTokenController := controllers.NewRegisterDeviceTokenController(registerDeviceTokenUseCase)
+	sendPushController := controllers.NewSendPushNotificationController(sendPushUseCase)
 	getMeController := controllers.NewGetMeController(getMeUseCase)
 	viewUsersController := controllers.NewViewUsersController(viewUsersUseCase)
 
 	// Configurar rutas
-	SetupUserRoutes(router, authMiddleware, registerController, loginController, refreshController, getMeController, viewUsersController)
+	SetupUserRoutes(
+		router,
+		authMiddleware,
+		registerController,
+		loginController,
+		refreshController,
+		registerDeviceTokenController,
+		sendPushController,
+		getMeController,
+		viewUsersController,
+	)
 }

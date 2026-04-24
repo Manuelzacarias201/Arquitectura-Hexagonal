@@ -1,13 +1,18 @@
 package entities
 
-type Alumn struct { //modelo de alumno
+type Alumn struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
 	Matricula string `json:"matricula"`
+	Email     string `json:"email"`
+	PhotoPath string `json:"photo_path,omitempty"`
 }
 
-func NewAlumn(name, matricula string) *Alumn { //funcion para crear un alumno
-	//Id innecesario pq en la base de datos se le asigna uno
-	alumn := Alumn{ID: 1, Name: name, Matricula: matricula} //crea un alumno con nombre y matricula
-	return &alumn
+func NewAlumn(name, matricula, email, photoPath string) *Alumn {
+	return &Alumn{
+		Name:      name,
+		Matricula: matricula,
+		Email:     email,
+		PhotoPath: photoPath,
+	}
 }

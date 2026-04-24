@@ -13,6 +13,7 @@ func SetupAlumnRoutes(
 	viewAlumnsController *controllers.ViewAllAlumnsController,
 	viewAlumnController *controllers.ViewOneAlumnController,
 	editAlumnController *controllers.EditAlumnController,
+	uploadAlumnPhotoController *controllers.UploadAlumnPhotoController,
 ) {
 	alumnGroup := router.Group("/alumns")
 	{
@@ -21,5 +22,6 @@ func SetupAlumnRoutes(
 		alumnGroup.GET("/:id", viewAlumnController.Run)
 		alumnGroup.DELETE("/:id", deleteAlumnController.Run)
 		alumnGroup.PUT("/:id", editAlumnController.Run)
+		alumnGroup.PUT("/:id/photo", uploadAlumnPhotoController.Run)
 	}
 }

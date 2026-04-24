@@ -1,20 +1,15 @@
 package application
 
-import (
-	"api/src/alumn/domain"
-)
+import "api/src/alumn/domain"
 
 type SaveAlumn struct {
 	db domain.IAlumn
 }
 
 func NewSaveAlumn(db domain.IAlumn) *SaveAlumn {
-	return &SaveAlumn{
-		db: db,
-	}
+	return &SaveAlumn{db: db}
 }
 
-func (sa *SaveAlumn) Execute(name, matricula string) error {
-	// Guardar el alumno con la matrícula en texto plano (visible tal cual)
-	return sa.db.Save(name, matricula)
+func (sa *SaveAlumn) Execute(name, matricula, email, photoPath string) error {
+	return sa.db.Save(name, matricula, email, photoPath)
 }

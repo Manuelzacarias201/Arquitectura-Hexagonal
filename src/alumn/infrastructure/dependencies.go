@@ -16,6 +16,7 @@ func InitAlumns(db *MySQL, router *gin.Engine) {
 	alumnViewer := application.NewViewAlumns(db)
 	alumnView := application.NewViewAlumn(db)
 	alumnEdit := application.NewEditAlumn(db)
+	alumnUpdatePhoto := application.NewUpdateAlumnPhoto(db)
 
 	// Instanciar controladores (Handlers)
 	addAlumnController := controllers.NewSaveAlumnController(alumnSaver)
@@ -23,7 +24,8 @@ func InitAlumns(db *MySQL, router *gin.Engine) {
 	viewAlumnsController := controllers.NewViewAllAlumnsController(alumnViewer)
 	viewAlumnController := controllers.NewViewOneAlumnController(alumnView)
 	editAlumnController := controllers.NewEditAlumnController(alumnEdit)
+	uploadAlumnPhotoController := controllers.NewUploadAlumnPhotoController(alumnUpdatePhoto)
 
 	// Configurar rutas
-	SetupAlumnRoutes(router, addAlumnController, deleteAlumnController, viewAlumnsController, viewAlumnController, editAlumnController)
+	SetupAlumnRoutes(router, addAlumnController, deleteAlumnController, viewAlumnsController, viewAlumnController, editAlumnController, uploadAlumnPhotoController)
 }

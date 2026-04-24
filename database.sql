@@ -9,7 +9,9 @@ USE school;
 CREATE TABLE IF NOT EXISTS alumns (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50),
-    matricula VARCHAR(100)
+    matricula VARCHAR(100),
+    email VARCHAR(255),
+    photo_url VARCHAR(512) NULL
 );
 
 -- Tabla de Profesores
@@ -31,3 +33,14 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Índices para mejorar el rendimiento
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+-- Tabla para guardar token FCM por usuario (para push notifications móviles)
+CREATE TABLE IF NOT EXISTS user_device_tokens (
+    user_id INT PRIMARY KEY,
+    fcm_token VARCHAR(512) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user_device_tokens_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

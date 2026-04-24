@@ -2,14 +2,14 @@ package application
 
 import "api/src/alumn/domain"
 
-type EditAlumn struct { //estructura para editar un alumno
+type EditAlumn struct {
 	db domain.IAlumn
 }
 
-func NewEditAlumn(db domain.IAlumn) *EditAlumn { //fun para editar un alumno
+func NewEditAlumn(db domain.IAlumn) *EditAlumn {
 	return &EditAlumn{db: db}
 }
 
-func (ep *EditAlumn) Execute(id int, name string, matricula string) error { // funcion para editar un alumn con id
-	return ep.db.Edit(id, name, matricula)
+func (ep *EditAlumn) Execute(id int, name, matricula, email, photoPath string) error {
+	return ep.db.Edit(id, name, matricula, email, photoPath)
 }

@@ -3,6 +3,8 @@ package controllers
 import (
 	"api/src/alumn/application"
 	"api/src/core"
+	userApplication "api/src/user/application"
+	"log"
 	"net/http"
 	"strings"
 
@@ -10,11 +12,18 @@ import (
 )
 
 type AddAlumnController struct { //estructura para guardar alumn
-	alumnSaver *application.SaveAlumn //puntero a la estructura de guardar alumn
+	alumnSaver *application.SaveAlumn
+	notify     *userApplication.SendBroadcastNotification
 }
 
-func NewSaveAlumnController(useCase *application.SaveAlumn) *AddAlumnController { //constructor para la bd
-	return &AddAlumnController{alumnSaver: useCase}
+func NewSaveAlumnController(
+	useCase *application.SaveAlumn,
+	notify *userApplication.SendBroadcastNotification,
+) *AddAlumnController {
+	return &AddAlumnController{
+		alumnSaver: useCase,
+		notify:     notify,
+	}
 }
 
 func (as *AddAlumnController) Run(c *gin.Context) { //maneja el post
@@ -41,6 +50,20 @@ func (as *AddAlumnController) Run(c *gin.Context) { //maneja el post
 		if err := as.alumnSaver.Execute(name, matricula, email, photoPath); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
+		}
+		if as.notify != nil {
+			if err := as.notify.Execute(
+				"Nuevo alumno registrado",
+				"Se registró el alumno "+name,
+				map[string]string{
+					"type":      "new_alumn",
+					"name":      name,
+					"matricula": matricula,
+					"email":     email,
+				},
+			); err != nil {
+				log.Printf("[WARN] no se pudo enviar notificación de nuevo alumno: %v", err)
+			}
 		}
 		c.JSON(http.StatusCreated, gin.H{"message": "Alumn saved successfully", "photo_path": photoPath})
 		return
@@ -71,6 +94,20 @@ func (as *AddAlumnController) Run(c *gin.Context) { //maneja el post
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
+	}
+	if as.notify != nil {
+		if err := as.notify.Execute(
+			"Nuevo alumno registrado",
+			"Se registró el alumno "+body.Name,
+			map[string]string{
+				"type":      "new_alumn",
+				"name":      body.Name,
+				"matricula": body.Matricula,
+				"email":     body.Email,
+			},
+		); err != nil {
+			log.Printf("[WARN] no se pudo enviar notificación de nuevo alumno: %v", err)
+		}
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Alumn saved successfully", "photo_path": photoPath})

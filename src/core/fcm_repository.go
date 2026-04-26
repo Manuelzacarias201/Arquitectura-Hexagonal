@@ -62,10 +62,59 @@ func (f *FCMRepository) SendToToken(token, title, body string, data map[string]s
 			Body:  body,
 		},
 		Data: data,
+		Android: &messaging.AndroidConfig{
+			Priority: "high",
+		},
 	}
+
+	if channelID, ok := data["android_channel_id"]; ok && channelID != "" {
+		msg.Android.Notification = &messaging.AndroidNotification{
+			ChannelID: channelID,
+		}
+	}
+
 	_, err := f.client.Send(context.Background(), msg)
 	if err != nil {
 		return fmt.Errorf("error enviando push FCM: %w", err)
+	}
+	return nil
+}
+
+func (f *FCMRepository) SendToTokens(tokens []string, title, body string, data map[string]string) error {
+	f.initClient()
+	if f.err != nil {
+		return f.err
+	}
+	if f.client == nil {
+		return errors.New("cliente FCM no disponible")
+	}
+	if len(tokens) == 0 {
+		return errors.New("no hay tokens para enviar")
+	}
+
+	msg := &messaging.MulticastMessage{
+		Tokens: tokens,
+		Notification: &messaging.Notification{
+			Title: title,
+			Body:  body,
+		},
+		Data: data,
+		Android: &messaging.AndroidConfig{
+			Priority: "high",
+		},
+	}
+	if channelID, ok := data["android_channel_id"]; ok && channelID != "" {
+		msg.Android.Notification = &messaging.AndroidNotification{
+			ChannelID: channelID,
+		}
+	}
+
+	res, err := f.client.SendEachForMulticast(context.Background(), msg)
+	if err != nil {
+		return fmt.Errorf("error enviando push multicast FCM: %w", err)
+	}
+	if res.FailureCount == len(tokens) {
+		return fmt.Errorf("falló el envío a todos los dispositivos: %d errores", res.FailureCount)
 	}
 	return nil
 }

@@ -30,6 +30,13 @@ func (s *SendPushNotification) Execute(userID int, title, body string, data map[
 		return &AppError{Code: CodePushTokenInvalid, Message: "El usuario no tiene token FCM registrado"}
 	}
 
+	if data == nil {
+		data = map[string]string{}
+	}
+	if _, ok := data["android_channel_id"]; !ok {
+		data["android_channel_id"] = "canal_estudiantes"
+	}
+
 	if err := s.fcm.SendToToken(token, title, body, data); err != nil {
 		return &AppError{Code: CodePushUnavailable, Message: "No se pudo enviar la notificación push"}
 	}

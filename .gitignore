@@ -1,5 +1,13 @@
 # Archivos de entorno
 .env
+.env.local
+.env.*.local
+
+# Credenciales sensibles (Firebase / Google Cloud)
+*firebase-adminsdk*.json
+firebase-key.json
+google-credentials.json
+service-account.json
 
 # Binarios
 *.exe

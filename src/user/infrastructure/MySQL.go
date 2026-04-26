@@ -143,3 +143,31 @@ func (mysql *MySQL) GetDeviceToken(userID int) (string, error) {
 	}
 	return "", fmt.Errorf("token FCM no encontrado para el usuario %d", userID)
 }
+
+func (mysql *MySQL) GetAllDeviceTokens() ([]string, error) {
+	query := "SELECT fcm_token FROM user_device_tokens WHERE fcm_token IS NOT NULL AND fcm_token <> ''"
+	rows, err := mysql.conn.FetchRows(query)
+	if err != nil {
+		return nil, fmt.Errorf("error consultando tokens FCM: %w", err)
+	}
+	defer func() {
+		if rows != nil {
+			rows.Close()
+		}
+	}()
+
+	tokens := make([]string, 0)
+	for rows.Next() {
+		var token string
+		if err := rows.Scan(&token); err != nil {
+			return nil, fmt.Errorf("error leyendo token FCM: %w", err)
+		}
+		if token != "" {
+			tokens = append(tokens, token)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterando tokens FCM: %w", err)
+	}
+	return tokens, nil
+}

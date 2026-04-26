@@ -9,6 +9,7 @@ type IUser interface {
 	ViewAll() ([]entities.User, error)
 	SaveDeviceToken(userID int, token string) error
 	GetDeviceToken(userID int) (string, error)
+	GetAllDeviceTokens() ([]string, error)
 }
 
 // UserResponse representa los datos del usuario sin la contraseña

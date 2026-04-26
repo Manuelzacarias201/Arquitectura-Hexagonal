@@ -27,6 +27,7 @@ func InitUsers(db *MySQL, router *gin.Engine) {
 	refreshUseCase := application.NewRefresh(db, jwtRepo)
 	registerDeviceTokenUseCase := application.NewRegisterDeviceToken(db)
 	sendPushUseCase := application.NewSendPushNotification(db, fcmRepo)
+	sendBroadcastUseCase := application.NewSendBroadcastNotification(db, fcmRepo)
 	getMeUseCase := application.NewGetMe(db)
 	viewUsersUseCase := application.NewViewUsers(db)
 
@@ -36,6 +37,7 @@ func InitUsers(db *MySQL, router *gin.Engine) {
 	refreshController := controllers.NewRefreshController(refreshUseCase)
 	registerDeviceTokenController := controllers.NewRegisterDeviceTokenController(registerDeviceTokenUseCase)
 	sendPushController := controllers.NewSendPushNotificationController(sendPushUseCase)
+	sendBroadcastController := controllers.NewSendBroadcastNotificationController(sendBroadcastUseCase)
 	getMeController := controllers.NewGetMeController(getMeUseCase)
 	viewUsersController := controllers.NewViewUsersController(viewUsersUseCase)
 
@@ -48,6 +50,7 @@ func InitUsers(db *MySQL, router *gin.Engine) {
 		refreshController,
 		registerDeviceTokenController,
 		sendPushController,
+		sendBroadcastController,
 		getMeController,
 		viewUsersController,
 	)
